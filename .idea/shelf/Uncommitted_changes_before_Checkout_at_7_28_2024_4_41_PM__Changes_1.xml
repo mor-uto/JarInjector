@@ -1,0 +1,14 @@
+<changelist name="Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1" date="1722174084343" recycled="true" deleted="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Checkout at 7/28/2024 4:41 PM [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/me/moruto/GUI.class" />
+    <option name="AFTER_PATH" value="target/classes/me/moruto/GUI.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1/GUI.class" />
+  </binary>
+  <binary>
+    <option name="BEFORE_PATH" value="target/classes/me/moruto/JarInjector.class" />
+    <option name="AFTER_PATH" value="target/classes/me/moruto/JarInjector.class" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1/JarInjector.class" />
+  </binary>
+</changelist>
