@@ -24,8 +24,6 @@ Output path: path to the output jar
 
 File to inject: path to the jar that will be injected into the input jar
 
-Main class: main class of input jar. example -> me.moruto.classes.Main
-
-Main Method: Main running method in the Main class. example -> main (refers to `public static void main(String[] args)` or anything method named main for example)
+Injection Main Class: the main class of the jar u want to inject
 ### Injecting
 Once you finish configuring it go to the inject tab and press inject

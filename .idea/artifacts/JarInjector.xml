@@ -1,0 +1,10 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="JarInjector">
+    <output-path>$PROJECT_DIR$/out/artifacts/JarInjector</output-path>
+    <root id="archive" name="JarInjector.jar">
+      <element id="module-output" name="JarInjector" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/ow2/asm/asm-tree/9.7/asm-tree-9.7.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/ow2/asm/asm/9.7/asm-9.7.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
