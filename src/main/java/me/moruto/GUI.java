@@ -27,17 +27,20 @@ public class GUI extends Application {
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Jar Injector");
 
-        Image icon = new Image(getClass().getResource("/icon.png").toString());
+        Image icon = new Image(getClass().getResourceAsStream("/icon.png"));
         primaryStage.getIcons().add(icon);
 
         BorderPane borderPane = new BorderPane();
 
         HBox topButtons = new HBox(10);
         topButtons.setPadding(new Insets(10, 10, 10, 10));
-        topButtons.setAlignment(Pos.CENTER_LEFT);
+        topButtons.setAlignment(Pos.CENTER);
 
         Button settingsButton = new Button("Settings");
         Button injectButton = new Button("Inject");
+
+        settingsButton.setPrefWidth(100);
+        injectButton.setPrefWidth(100);
 
         topButtons.getChildren().addAll(settingsButton, injectButton);
         borderPane.setTop(topButtons);
@@ -46,12 +49,14 @@ public class GUI extends Application {
         settingsGrid.setPadding(new Insets(10, 10, 10, 10));
         settingsGrid.setVgap(10);
         settingsGrid.setHgap(10);
+        settingsGrid.setAlignment(Pos.CENTER);
 
         Label inputLabel = new Label("Input Path:");
         GridPane.setConstraints(inputLabel, 0, 0);
 
         TextField inputPathField = new TextField();
         inputPathField.setPromptText("Enter input path");
+        inputPathField.setPrefWidth(300);
         GridPane.setConstraints(inputPathField, 1, 0);
 
         Button inputPathButton = new Button("Select File");
@@ -62,6 +67,7 @@ public class GUI extends Application {
 
         TextField outputPathField = new TextField();
         outputPathField.setPromptText("Enter output path");
+        outputPathField.setPrefWidth(300);
         GridPane.setConstraints(outputPathField, 1, 1);
 
         Button outputPathButton = new Button("Select File");
@@ -72,6 +78,7 @@ public class GUI extends Application {
 
         TextField fileToInjectField = new TextField();
         fileToInjectField.setPromptText("Enter file to inject");
+        fileToInjectField.setPrefWidth(300);
         GridPane.setConstraints(fileToInjectField, 1, 2);
 
         Button fileToInjectButton = new Button("Select File");
@@ -82,6 +89,7 @@ public class GUI extends Application {
 
         injectionMainClassInput = new TextField();
         injectionMainClassInput.setPromptText("Enter Injection Main Class");
+        injectionMainClassInput.setPrefWidth(300);
         GridPane.setConstraints(injectionMainClassInput, 1, 3);
 
         settingsGrid.getChildren().addAll(
@@ -98,11 +106,12 @@ public class GUI extends Application {
         consoleOutput = new TextArea();
         consoleOutput.setEditable(false);
         consoleOutput.setWrapText(true);
-        consoleOutput.setPrefHeight(150);
-        consoleOutput.setPrefWidth(350);
+        consoleOutput.setPrefHeight(200);
+        consoleOutput.setPrefWidth(500);
 
         Button injectAction = new Button("Inject");
         injectAction.setOnAction(e -> inject());
+        injectAction.setPrefWidth(100);
 
         injectBox.getChildren().addAll(consoleOutput, injectAction);
 
@@ -138,7 +147,7 @@ public class GUI extends Application {
             }
         });
 
-        Scene scene = new Scene(borderPane, 600, 500);
+        Scene scene = new Scene(borderPane, 600, 400);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -185,7 +194,7 @@ public class GUI extends Application {
         JarInjector.inject(injectionMainClass.replace(".", "/"), inputJarLoader.classes);
         inputJarLoader.classes.addAll(injectionJarLoader.classes);
         inputJarLoader.resources.addAll(injectionJarLoader.resources);
-        
+
         inputJarLoader.saveJar(output);
         log("Successfully saved the jar!");
     }
