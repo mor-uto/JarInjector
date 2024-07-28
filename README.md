@@ -2,6 +2,9 @@
 
 JarInjector is a simple ASM injection tool that allows you to inject classes and modify JAR files.
 
+## NOTE
+this injector is still buggy and has some issues still
+
 ## Usage
 
 ### Running the Application
