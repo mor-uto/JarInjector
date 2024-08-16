@@ -30,4 +30,5 @@ Once you finish configuring it go to the inject tab and press inject
 
 ### Libs
 JavaFX (org.openjfx.javafx) - GUI
+
 Asm (org.ow2.asm) - Bytecode Manipulation
