@@ -182,18 +182,20 @@ public class GUI extends Application {
         if (!mainLoaded) {
             log("Error loading the main jar. Please try again!");
             return;
-        } else log("Main Jar successfully loaded!");
+        }
 
+        log("Main Jar successfully loaded!");
         JarLoader injectionJarLoader = new JarLoader();
         boolean loaded = injectionJarLoader.loadJar(fileToInject);
         if (!loaded) {
             log("Error loading the Injection jar. Please try again!");
             return;
-        } else log("Injection Jar successfully loaded!");
+        }
 
-        JarInjector.inject(injectionMainClass.replace(".", "/"), inputJarLoader.classes);
-        inputJarLoader.classes.addAll(injectionJarLoader.classes);
-        inputJarLoader.resources.addAll(injectionJarLoader.resources);
+        log("Injection Jar successfully loaded!");
+        JarInjector.inject(injectionMainClass.replace(".", "/"), inputJarLoader);
+        inputJarLoader.getClasses().addAll(injectionJarLoader.getClasses());
+        inputJarLoader.getResources().addAll(injectionJarLoader.getResources());
 
         inputJarLoader.saveJar(output);
         log("Successfully saved the jar!");

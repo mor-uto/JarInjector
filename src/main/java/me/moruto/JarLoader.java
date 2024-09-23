@@ -17,8 +17,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class JarLoader {
-    public List<ClassNode> classes = new ArrayList<>();
-    public List<ResourceWrapper> resources = new ArrayList<>();
+    private final List<ClassNode> classes = new ArrayList<>();
+    private final List<ResourceWrapper> resources = new ArrayList<>();
 
     public boolean loadJar(File file) {
         try (ZipInputStream jarInputStream = new ZipInputStream(Files.newInputStream(Paths.get(file.toURI())))) {
@@ -31,11 +31,11 @@ public class JarLoader {
                     classes.add(classNode);
                     GUI.log("Loaded class: " + classNode.name);
                 } else {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     byte[] buffer = new byte[0x1000];
                     int read;
-                    while ((read = jarInputStream.read(buffer)) != -1) bos.write(buffer, 0, read);
-                    resources.add(new ResourceWrapper(zipEntry, bos.toByteArray()));
+                    while ((read = jarInputStream.read(buffer)) != -1) baos.write(buffer, 0, read);
+                    resources.add(new ResourceWrapper(zipEntry, baos.toByteArray()));
                 }
 
                 jarInputStream.closeEntry();
@@ -47,7 +47,17 @@ public class JarLoader {
         }
     }
 
-    public boolean saveJar(String path) {
+    public ZipEntry getManifest() {
+        for (ResourceWrapper resourceWrapper : resources) {
+            if (resourceWrapper.getEntry().getName().endsWith("MANIFEST.MF")) {
+                return resourceWrapper.getEntry();
+            }
+        }
+
+        return null;
+    }
+
+    public void saveJar(String path) {
         try (JarOutputStream jos = new JarOutputStream(Files.newOutputStream(Paths.get(path)))) {
             ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
 
@@ -67,11 +77,17 @@ public class JarLoader {
                 jos.closeEntry();
             }
 
-            return true;
+            GUI.log("Successfully saved the jar!");
         } catch (IOException e) {
-            e.printStackTrace();
+            GUI.log("Failed to save the jar: " + e.getMessage());
         }
+    }
 
-        return false;
+    public List<ClassNode> getClasses() {
+        return classes;
+    }
+
+    public List<ResourceWrapper> getResources() {
+        return resources;
     }
 }
