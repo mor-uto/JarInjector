@@ -27,3 +27,8 @@ File to inject: path to the jar that will be injected into the input jar
 Injection Main Class: the main class of the jar u want to inject
 ### Injecting
 Once you finish configuring it go to the inject tab and press inject
+
+### Libs
+JavaFX (org.openjfx.javafx) - GUI
+
+Asm (org.ow2.asm) - Bytecode Manipulation
