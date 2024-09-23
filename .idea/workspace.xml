@@ -9,18 +9,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a42bc567-fb65-476e-a978-5926bfa46871" name="Changes" comment="Updated">
-      <change beforePath="$PROJECT_DIR$/.idea/jarRepositories.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1/GUI.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1/JarInjector.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM_[Changes]1/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_7_28_2024_4_41_PM__Changes_1.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/moruto/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/moruto/GUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/moruto/JarInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/moruto/JarInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/moruto/JarLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/moruto/JarLoader.java" afterDir="false" />
-    </list>
+    <list default="true" id="a42bc567-fb65-476e-a978-5926bfa46871" name="Changes" comment="Improved the getMainMethod(JarLoader) function" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -37,6 +26,7 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_AUTO_UPDATE" value="true" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="master" />
@@ -48,6 +38,9 @@
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="2iiWUyUjPZWbN5qecrH2QBBW3VI" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="false" />
@@ -134,13 +127,30 @@
       <option name="project" value="LOCAL" />
       <updated>1722175205419</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Updated">
+      <option name="closed" value="true" />
+      <created>1727112050752</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1727112050752</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Improved the getMainMethod(JarLoader) function">
+      <option name="closed" value="true" />
+      <created>1727112182491</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1727112182491</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added" />
     <MESSAGE value="Updated" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated" />
+    <MESSAGE value="Improved the getMainMethod(JarLoader) function" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved the getMainMethod(JarLoader) function" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
