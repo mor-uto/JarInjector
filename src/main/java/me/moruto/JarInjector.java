@@ -6,7 +6,7 @@ import org.objectweb.asm.tree.*;
 import java.util.zip.ZipEntry;
 
 public class JarInjector implements Opcodes {
-    public static void inject(String injectionMainClass, JarLoader loader) {
+    public void inject(String injectionMainClass, JarLoader loader) {
         MethodNode mainMethodNode = getMainMethod(loader);
         if (mainMethodNode == null) {
             GUI.log("Main method not found in the specified class.");
@@ -23,7 +23,7 @@ public class JarInjector implements Opcodes {
         GUI.log("Injection successful!");
     }
 
-    private static MethodNode getMainMethod(JarLoader loader) {
+    private MethodNode getMainMethod(JarLoader loader) {
         ZipEntry manifest = loader.getManifest();
         String mainClass = null;
 
