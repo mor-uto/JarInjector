@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -12,6 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.File;
@@ -23,9 +25,16 @@ public class GUI extends Application {
     private TextField injectionMainClassInput;
     private static TextArea consoleOutput;
 
+    private final JarInjector jarInjector = new JarInjector();
+
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("Jar Injector");
+
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
+
+        double screenWidth = screenBounds.getWidth();
+        double screenHeight = screenBounds.getHeight();
 
         Image icon = new Image(getClass().getResourceAsStream("/icon.png"));
         primaryStage.getIcons().add(icon);
@@ -84,11 +93,11 @@ public class GUI extends Application {
         Button fileToInjectButton = new Button("Select File");
         GridPane.setConstraints(fileToInjectButton, 2, 2);
 
-        Label injectionMainClassLabel = new Label("Injection Main Class:");
+        Label injectionMainClassLabel = new Label("Injected jar Main Class:");
         GridPane.setConstraints(injectionMainClassLabel, 0, 3);
 
         injectionMainClassInput = new TextField();
-        injectionMainClassInput.setPromptText("Enter Injection Main Class");
+        injectionMainClassInput.setPromptText("Enter the main class of the jar you want to inject.");
         injectionMainClassInput.setPrefWidth(300);
         GridPane.setConstraints(injectionMainClassInput, 1, 3);
 
@@ -147,7 +156,7 @@ public class GUI extends Application {
             }
         });
 
-        Scene scene = new Scene(borderPane, 600, 400);
+        Scene scene = new Scene(borderPane, screenWidth / 2, screenHeight / 2);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -178,24 +187,23 @@ public class GUI extends Application {
         }
 
         JarLoader inputJarLoader = new JarLoader();
-        boolean mainLoaded = inputJarLoader.loadJar(inputFile);
-        if (!mainLoaded) {
+        if (!inputJarLoader.loadJar(inputFile)) {
             log("Error loading the main jar. Please try again!");
             return;
         }
 
         log("Main Jar successfully loaded!");
         JarLoader injectionJarLoader = new JarLoader();
-        boolean loaded = injectionJarLoader.loadJar(fileToInject);
-        if (!loaded) {
+        if (!injectionJarLoader.loadJar(fileToInject)) {
             log("Error loading the Injection jar. Please try again!");
             return;
         }
 
         log("Injection Jar successfully loaded!");
-        JarInjector.inject(injectionMainClass.replace(".", "/"), inputJarLoader);
+        jarInjector.inject(injectionMainClass.replace(".", "/"), inputJarLoader);
         inputJarLoader.getClasses().addAll(injectionJarLoader.getClasses());
         inputJarLoader.getResources().addAll(injectionJarLoader.getResources());
+        log("Successfully injected!");
 
         inputJarLoader.saveJar(output);
         log("Successfully saved the jar!");
