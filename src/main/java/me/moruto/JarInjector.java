@@ -3,10 +3,8 @@ package me.moruto;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 
-import java.util.zip.ZipEntry;
-
-public class JarInjector implements Opcodes {
-    public void inject(String injectionMainClass, JarLoader loader) {
+public class JarInjector {
+    public void inject(JarLoader loader) {
         MethodNode mainMethodNode = getMainMethod(loader);
         if (mainMethodNode == null) {
             GUI.log("Main method not found in the specified class.");
@@ -14,34 +12,51 @@ public class JarInjector implements Opcodes {
         }
 
         InsnList insnList = new InsnList();
-        insnList.add(new TypeInsnNode(NEW, injectionMainClass));
-        insnList.add(new InsnNode(DUP));
-        insnList.add(new MethodInsnNode(INVOKESPECIAL, injectionMainClass, "<init>", "()V", false));
+        insnList.add(new TypeInsnNode(Opcodes.NEW, mainMethodNode.name));
+        insnList.add(new InsnNode(Opcodes.DUP));
+        insnList.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, mainMethodNode.name, "<init>", "()V", false));
 
-        mainMethodNode.instructions.insertBefore(mainMethodNode.instructions.getFirst(), insnList);
+        if (mainMethodNode.name.equals("<init>")) {
+            mainMethodNode.instructions.insertBefore(mainMethodNode.instructions.getFirst(), insnList);
+            return;
+        }
 
-        GUI.log("Injection successful!");
+        mainMethodNode.instructions.add(insnList);
     }
 
     private MethodNode getMainMethod(JarLoader loader) {
-        ZipEntry manifest = loader.getManifest();
+        String manifest = loader.getManifest().toString();
         String mainClass = null;
 
-        if (manifest != null) {
-            mainClass = new String(manifest.getExtra()).split("Main-Class: ")[1].split("\n")[0].replace(".", "/");
+        System.out.println(manifest);
+
+        if (!manifest.isEmpty()) {
+            try {
+                if (manifest.contains("Main-Class: ")) {
+                    mainClass = manifest.split("Main-Class: ")[1].split("\\r?\\n")[0].trim().replace(".", "/");
+                }
+            } catch (Exception e) {
+                GUI.log("Error parsing manifest: " + e.getMessage());
+            }
         }
 
-        for (ClassNode classNode : loader.getClasses()) {
-            if (mainClass == null || classNode.name.equals(mainClass)) {
-                for (MethodNode methodNode : classNode.methods) {
-                    if (methodNode.name.equalsIgnoreCase("main") && methodNode.desc.equals("([Ljava/lang/String;)V")) {
-                        return methodNode;
+        if (mainClass != null) {
+            for (ClassNode classNode : loader.getClasses()) {
+                if (classNode.name.equals(mainClass)) {
+                    for (MethodNode methodNode : classNode.methods) {
+                        if (methodNode.name.equalsIgnoreCase("main") && methodNode.desc.equals("([Ljava/lang/String;)V")) {
+                            return methodNode;
+                        }
+
+                        if (methodNode.name.equals("<init>") & methodNode.desc.equals("()V")) {
+                            return methodNode;
+                        }
                     }
                 }
             }
         }
 
+        GUI.log("Main method not found.");
         return null;
     }
-
 }
