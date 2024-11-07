@@ -21,54 +21,43 @@ public class JarLoader {
     private final List<ResourceWrapper> resources = new ArrayList<>();
 
     public boolean loadJar(File file) {
-        try (ZipInputStream jarInputStream = new ZipInputStream(Files.newInputStream(Paths.get(file.toURI())))) {
+        try (ZipInputStream jarInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
             ZipEntry zipEntry;
+            byte[] buffer = new byte[4096];
             while ((zipEntry = jarInputStream.getNextEntry()) != null) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                int read;
+                while ((read = jarInputStream.read(buffer)) != -1) {
+                    baos.write(buffer, 0, read);
+                }
+
+                byte[] data = baos.toByteArray();
                 if (zipEntry.getName().endsWith(".class")) {
-                    ClassReader reader = new ClassReader(jarInputStream);
                     ClassNode classNode = new ClassNode();
-                    reader.accept(classNode, 0);
+                    new ClassReader(data).accept(classNode, 0);
                     classes.add(classNode);
                     GUI.log("Loaded class: " + classNode.name);
                 } else {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buffer = new byte[0x1000];
-                    int read;
-                    while ((read = jarInputStream.read(buffer)) != -1) baos.write(buffer, 0, read);
-                    resources.add(new ResourceWrapper(zipEntry, baos.toByteArray()));
+                    resources.add(new ResourceWrapper(zipEntry, data));
+                    GUI.log("Loaded resource: " + zipEntry.getName());
                 }
-
                 jarInputStream.closeEntry();
             }
             return true;
         } catch (IOException e) {
-            GUI.log(e.getMessage());
+            GUI.log("Error loading jar: " + e.getMessage());
             return false;
         }
     }
 
-    public ZipEntry getManifest() {
-        for (ResourceWrapper resourceWrapper : resources) {
-            if (resourceWrapper.getEntry().getName().endsWith("MANIFEST.MF")) {
-                return resourceWrapper.getEntry();
-            }
-        }
-
-        return null;
-    }
-
     public void saveJar(String path) {
         try (JarOutputStream jos = new JarOutputStream(Files.newOutputStream(Paths.get(path)))) {
-            ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
-
             for (ClassNode classNode : classes) {
+                ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
                 classNode.accept(classWriter);
-
                 jos.putNextEntry(new ZipEntry(classNode.name.replace('.', '/') + ".class"));
                 jos.write(classWriter.toByteArray());
                 jos.closeEntry();
-
-                classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
             }
 
             for (ResourceWrapper resource : resources) {
@@ -77,7 +66,7 @@ public class JarLoader {
                 jos.closeEntry();
             }
 
-            GUI.log("Successfully saved the jar!");
+            GUI.log("Successfully saved the jar to: " + path);
         } catch (IOException e) {
             GUI.log("Failed to save the jar: " + e.getMessage());
         }
