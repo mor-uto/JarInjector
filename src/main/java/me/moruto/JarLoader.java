@@ -50,6 +50,10 @@ public class JarLoader {
         }
     }
 
+    public ZipEntry getManifest() {
+        return resources.stream().map(ResourceWrapper::getEntry).filter(entry -> entry.getName().equals("META-INF/MANIFEST.MF")).findFirst().orElse(null);
+    }
+
     public void saveJar(String path) {
         try (JarOutputStream jos = new JarOutputStream(Files.newOutputStream(Paths.get(path)))) {
             for (ClassNode classNode : classes) {

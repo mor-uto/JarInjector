@@ -90,17 +90,15 @@ public class GUI extends Application {
             log("Please select or enter the input jar path.");
             return;
         }
+
         if (injectPathField.getText().isEmpty() && fileToInject == null) {
             log("Please select or enter the path of the jar to inject.");
             return;
         }
 
-        if (!inputPathField.getText().isEmpty()) {
-            inputFile = new File(inputPathField.getText());
-        }
-        if (!injectPathField.getText().isEmpty()) {
-            fileToInject = new File(injectPathField.getText());
-        }
+        if (!inputPathField.getText().isEmpty()) inputFile = new File(inputPathField.getText());
+        if (!injectPathField.getText().isEmpty()) fileToInject = new File(injectPathField.getText());
+
         if (!outputPathField.getText().isEmpty()) {
             outputFile = new File(outputPathField.getText());
         } else if (outputFile == null) {

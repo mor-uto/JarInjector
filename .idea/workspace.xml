@@ -9,9 +9,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a42bc567-fb65-476e-a978-5926bfa46871" name="Changes" comment="changed static methods to non-static">
+    <list default="true" id="a42bc567-fb65-476e-a978-5926bfa46871" name="Changes" comment="Shrank the code.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/me/moruto/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/moruto/GUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/me/moruto/JarLoader.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/moruto/JarLoader.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +60,7 @@
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "D:/Projects/IdeaProjects/JarInjector",
-    "project.structure.last.edited": "Project",
+    "project.structure.last.edited": "Artifacts",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "settings.editor.selected.configurable": "discord-project"
@@ -170,7 +171,47 @@
       <option name="project" value="LOCAL" />
       <updated>1729018786400</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="more logging, more clarity, screen size is now equal on all devices.">
+      <option name="closed" value="true" />
+      <created>1729019588887</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1729019588887</updated>
+    </task>
+    <task id="LOCAL-00012" summary="updated">
+      <option name="closed" value="true" />
+      <created>1729019613622</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1729019613622</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Fixed input fields not working.">
+      <option name="closed" value="true" />
+      <created>1730988995102</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1730988995103</updated>
+    </task>
+    <task id="LOCAL-00014" summary="injecting into constructor if main(String[] args) is not found.">
+      <option name="closed" value="true" />
+      <created>1730989034156</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1730989034156</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Shrank the code.">
+      <option name="closed" value="true" />
+      <created>1730989335031</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1730989335031</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -179,7 +220,12 @@
     <MESSAGE value="Versionless" />
     <MESSAGE value="Updated" />
     <MESSAGE value="changed static methods to non-static" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed static methods to non-static" />
+    <MESSAGE value="more logging, more clarity, screen size is now equal on all devices." />
+    <MESSAGE value="updated" />
+    <MESSAGE value="Fixed input fields not working." />
+    <MESSAGE value="injecting into constructor if main(String[] args) is not found." />
+    <MESSAGE value="Shrank the code." />
+    <option name="LAST_COMMIT_MESSAGE" value="Shrank the code." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
