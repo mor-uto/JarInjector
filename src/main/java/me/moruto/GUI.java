@@ -3,28 +3,23 @@ package me.moruto;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.InputStream;
 
 public class GUI extends Application {
-    private File inputFile;
-    private File outputFile;
-    private File fileToInject;
-    private TextField injectionMainClassInput;
+    private File inputFile, outputFile, fileToInject;
+    private TextField inputPathField, outputPathField, injectPathField;
     private static TextArea consoleOutput;
-
     private final JarInjector jarInjector = new JarInjector();
 
     @Override
@@ -33,180 +28,104 @@ public class GUI extends Application {
 
         Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
-        double screenWidth = screenBounds.getWidth();
-        double screenHeight = screenBounds.getHeight();
-
-        Image icon = new Image(getClass().getResourceAsStream("/icon.png"));
-        primaryStage.getIcons().add(icon);
+        InputStream iconIS = getClass().getResourceAsStream("/icon.png");
+        if (iconIS != null) {
+            Image icon = new Image(iconIS);
+            primaryStage.getIcons().add(icon);
+        }
 
         BorderPane borderPane = new BorderPane();
-
-        HBox topButtons = new HBox(10);
-        topButtons.setPadding(new Insets(10, 10, 10, 10));
-        topButtons.setAlignment(Pos.CENTER);
-
-        Button settingsButton = new Button("Settings");
-        Button injectButton = new Button("Inject");
-
-        settingsButton.setPrefWidth(100);
-        injectButton.setPrefWidth(100);
-
-        topButtons.getChildren().addAll(settingsButton, injectButton);
-        borderPane.setTop(topButtons);
-
         GridPane settingsGrid = new GridPane();
-        settingsGrid.setPadding(new Insets(10, 10, 10, 10));
+        settingsGrid.setPadding(new Insets(10));
         settingsGrid.setVgap(10);
         settingsGrid.setHgap(10);
-        settingsGrid.setAlignment(Pos.CENTER);
 
-        Label inputLabel = new Label("Input Path:");
-        GridPane.setConstraints(inputLabel, 0, 0);
-
-        TextField inputPathField = new TextField();
-        inputPathField.setPromptText("Enter input path");
-        inputPathField.setPrefWidth(300);
-        GridPane.setConstraints(inputPathField, 1, 0);
-
-        Button inputPathButton = new Button("Select File");
-        GridPane.setConstraints(inputPathButton, 2, 0);
-
-        Label outputLabel = new Label("Output Path:");
-        GridPane.setConstraints(outputLabel, 0, 1);
-
-        TextField outputPathField = new TextField();
-        outputPathField.setPromptText("Enter output path");
-        outputPathField.setPrefWidth(300);
-        GridPane.setConstraints(outputPathField, 1, 1);
-
-        Button outputPathButton = new Button("Select File");
-        GridPane.setConstraints(outputPathButton, 2, 1);
-
-        Label fileToInjectLabel = new Label("File to Inject:");
-        GridPane.setConstraints(fileToInjectLabel, 0, 2);
-
-        TextField fileToInjectField = new TextField();
-        fileToInjectField.setPromptText("Enter file to inject");
-        fileToInjectField.setPrefWidth(300);
-        GridPane.setConstraints(fileToInjectField, 1, 2);
-
-        Button fileToInjectButton = new Button("Select File");
-        GridPane.setConstraints(fileToInjectButton, 2, 2);
-
-        Label injectionMainClassLabel = new Label("Injected jar Main Class:");
-        GridPane.setConstraints(injectionMainClassLabel, 0, 3);
-
-        injectionMainClassInput = new TextField();
-        injectionMainClassInput.setPromptText("Enter the main class of the jar you want to inject.");
-        injectionMainClassInput.setPrefWidth(300);
-        GridPane.setConstraints(injectionMainClassInput, 1, 3);
-
-        settingsGrid.getChildren().addAll(
-                inputLabel, inputPathField, inputPathButton,
-                outputLabel, outputPathField, outputPathButton,
-                fileToInjectLabel, fileToInjectField, fileToInjectButton,
-                injectionMainClassLabel, injectionMainClassInput
-        );
-
-        VBox injectBox = new VBox(10);
-        injectBox.setAlignment(Pos.CENTER);
-        injectBox.setPadding(new Insets(20, 20, 20, 20));
+        inputPathField = createFileSelector(settingsGrid, "Input Path:", 0, primaryStage, false);
+        outputPathField = createFileSelector(settingsGrid, "Output Path:", 1, primaryStage, true);
+        injectPathField = createFileSelector(settingsGrid, "File to Inject:", 2, primaryStage, false);
 
         consoleOutput = new TextArea();
         consoleOutput.setEditable(false);
         consoleOutput.setWrapText(true);
         consoleOutput.setPrefHeight(200);
-        consoleOutput.setPrefWidth(500);
 
         Button injectAction = new Button("Inject");
         injectAction.setOnAction(e -> inject());
-        injectAction.setPrefWidth(100);
 
-        injectBox.getChildren().addAll(consoleOutput, injectAction);
+        BorderPane.setMargin(consoleOutput, new Insets(20));
+        borderPane.setTop(settingsGrid);
+        borderPane.setCenter(consoleOutput);
+        borderPane.setBottom(injectAction);
 
-        borderPane.setCenter(settingsGrid);
-
-        settingsButton.setOnAction(e -> borderPane.setCenter(settingsGrid));
-        injectButton.setOnAction(e -> borderPane.setCenter(injectBox));
-
-        inputPathButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Jar Files", "*.jar"));
-            inputFile = fileChooser.showOpenDialog(primaryStage);
-            if (inputFile != null) {
-                inputPathField.setText(inputFile.getAbsolutePath());
-            }
-        });
-
-        outputPathButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Jar Files", "*.jar"));
-            outputFile = fileChooser.showSaveDialog(primaryStage);
-            if (outputFile != null) {
-                outputPathField.setText(outputFile.getAbsolutePath());
-            }
-        });
-
-        fileToInjectButton.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Jar Files", "*.jar"));
-            fileToInject = fileChooser.showOpenDialog(primaryStage);
-            if (fileToInject != null) {
-                fileToInjectField.setText(fileToInject.getAbsolutePath());
-            }
-        });
-
-        Scene scene = new Scene(borderPane, screenWidth / 2, screenHeight / 2);
+        Scene scene = new Scene(borderPane, screenBounds.getWidth() / 2, screenBounds.getHeight() / 2);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    private TextField createFileSelector(GridPane gridPane, String label, int row, Stage primaryStage, boolean save) {
+        TextField pathField = new TextField();
+        pathField.setPrefWidth(300);
+        Button selectButton = new Button("Select File");
+
+        selectButton.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Jar Files", "*.jar"));
+            File selectedFile = save ? fileChooser.showSaveDialog(primaryStage) : fileChooser.showOpenDialog(primaryStage);
+            if (selectedFile != null) {
+                pathField.setText(selectedFile.getAbsolutePath());
+                if (row == 0) inputFile = selectedFile;
+                else if (row == 1) outputFile = selectedFile;
+                else fileToInject = selectedFile;
+            }
+        });
+
+        gridPane.add(new Label(label), 0, row);
+        gridPane.add(pathField, 1, row);
+        gridPane.add(selectButton, 2, row);
+        return pathField;
+    }
+
     private void inject() {
-        if (inputFile == null) {
-            log("Please select the input file.");
+        if (inputPathField.getText().isEmpty() && inputFile == null) {
+            log("Please select or enter the input jar path.");
+            return;
+        }
+        if (injectPathField.getText().isEmpty() && fileToInject == null) {
+            log("Please select or enter the path of the jar to inject.");
             return;
         }
 
-        if (outputFile == null) {
-            log("Output file is invalid, defaulting to \"input path + \"-injected\"\"");
+        if (!inputPathField.getText().isEmpty()) {
+            inputFile = new File(inputPathField.getText());
+        }
+        if (!injectPathField.getText().isEmpty()) {
+            fileToInject = new File(injectPathField.getText());
+        }
+        if (!outputPathField.getText().isEmpty()) {
+            outputFile = new File(outputPathField.getText());
+        } else if (outputFile == null) {
             outputFile = new File(inputFile.getAbsolutePath().replace(".jar", "-injected.jar"));
-        }
-
-        if (fileToInject == null) {
-            log("Please select the file to inject.");
-            return;
-        }
-
-        String output = outputFile.getAbsolutePath();
-        String injectionMainClass = injectionMainClassInput.getText();
-        consoleOutput.clear();
-
-        if (!inputFile.exists()) {
-            log("Input file is missing!");
-            return;
+            log("No output file selected, defaulting to: " + outputFile.getAbsolutePath());
         }
 
         JarLoader inputJarLoader = new JarLoader();
         if (!inputJarLoader.loadJar(inputFile)) {
-            log("Error loading the main jar. Please try again!");
+            log("Error loading input jar.");
             return;
         }
 
-        log("Main Jar successfully loaded!");
         JarLoader injectionJarLoader = new JarLoader();
         if (!injectionJarLoader.loadJar(fileToInject)) {
-            log("Error loading the Injection jar. Please try again!");
+            log("Error loading injection jar.");
             return;
         }
 
-        log("Injection Jar successfully loaded!");
-        jarInjector.inject(injectionMainClass.replace(".", "/"), inputJarLoader);
+        jarInjector.inject(inputJarLoader);
         inputJarLoader.getClasses().addAll(injectionJarLoader.getClasses());
         inputJarLoader.getResources().addAll(injectionJarLoader.getResources());
-        log("Successfully injected!");
+        inputJarLoader.saveJar(outputFile.getAbsolutePath());
 
-        inputJarLoader.saveJar(output);
-        log("Successfully saved the jar!");
+        log("Injection successful! Output saved at: " + outputFile.getAbsolutePath());
     }
 
     public static void log(String message) {
