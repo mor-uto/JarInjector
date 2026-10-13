@@ -1,5 +1,3 @@
-// Discord username: _moruto_
-
 package me.moruto;
 
 import org.objectweb.asm.ClassReader;
@@ -21,7 +19,6 @@ public class JarLoader {
     private final List<ClassNode> classes = new ArrayList<>();
     private final List<ResourceWrapper> resources = new ArrayList<>();
 
-    //load classes and resources of a jaar file
     public boolean loadJar(File file) {
         try (ZipInputStream jarInputStream = new ZipInputStream(Files.newInputStream(file.toPath()))) {
             ZipEntry zipEntry;
@@ -56,7 +53,6 @@ public class JarLoader {
         return resources.stream().map(ResourceWrapper::getEntry).filter(entry -> entry.getName().equals("META-INF/MANIFEST.MF")).findFirst().orElse(null);
     }
 
-    //save the edited classes and resources to a new jar file while retaining original manifest
     public void saveJar(String path) {
         try (JarOutputStream jos = new JarOutputStream(Files.newOutputStream(Paths.get(path)))) {
             for (ClassNode classNode : classes) {
