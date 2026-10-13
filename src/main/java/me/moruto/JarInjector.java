@@ -1,3 +1,6 @@
+// CONNECTED Discord
+// discord username: _moruto_
+
 package me.moruto;
 
 import org.objectweb.asm.Opcodes;
@@ -11,6 +14,7 @@ public class JarInjector {
             return;
         }
 
+        //add bytecode instructions to initalize the injected main class
         InsnList insnList = new InsnList();
         insnList.add(new TypeInsnNode(Opcodes.NEW, mainMethodNode.name));
         insnList.add(new InsnNode(Opcodes.DUP));
@@ -24,6 +28,7 @@ public class JarInjector {
         mainMethodNode.instructions.add(insnList);
     }
 
+    //fetch the main(String[] args) method to apply the initalization of the injected main class in
     private MethodNode getMainMethod(JarLoader loader) {
         String manifest = loader.getManifest().toString();
         String mainClass = null;
