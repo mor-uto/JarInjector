@@ -1,4 +1,4 @@
-package me.moruto.utils;
+package me.moruto;
 
 import java.util.zip.ZipEntry;
 

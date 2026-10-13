@@ -12,7 +12,7 @@ To run JarInjector, you have two options:
 ```bash
 java -jar JarInjector.jar
 ```
-![img.png](img.png)
+![img.png](github/img.png)
 
 ### Configuration
 Input path: path to the jar you want to be injected

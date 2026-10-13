@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,17 +46,22 @@ public class GUI extends JFrame {
     }
 
     private void loadIcon() {
-        try {
-            InputStream input = getClass().getResourceAsStream("/icon.png");
+        try (InputStream input = getClass().getResourceAsStream("/icon.png")) {
 
             if (input != null) {
-                ImageIcon icon = new ImageIcon(
-                        new ImageIcon(input.readAllBytes())
-                                .getImage()
-                );
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
 
+                byte[] buffer = new byte[4096];
+                int n;
+
+                while ((n = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, n);
+                }
+
+                ImageIcon icon = new ImageIcon(output.toByteArray());
                 setIconImage(icon.getImage());
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
