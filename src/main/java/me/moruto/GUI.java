@@ -21,7 +21,6 @@ public class GUI extends JFrame {
 
     private final JarInjector jarInjector = new JarInjector();
 
-    // Dark theme colors
     private final Color bg = new Color(24, 26, 32);
     private final Color panel = new Color(32, 35, 43);
     private final Color fieldBg = new Color(40, 43, 52);
@@ -53,7 +52,6 @@ public class GUI extends JFrame {
         root.setBackground(bg);
         root.setBorder(new EmptyBorder(24, 26, 22, 26));
 
-        // Header
         JLabel title = new JLabel("Jar Injector");
         title.setFont(new Font("SansSerif", Font.BOLD, 25));
         title.setForeground(text);
@@ -71,11 +69,9 @@ public class GUI extends JFrame {
 
         root.add(header, BorderLayout.NORTH);
 
-        // Main content
         JPanel content = new JPanel(new BorderLayout(0, 16));
         content.setOpaque(false);
 
-        // File selection card
         JPanel files = card();
         files.setLayout(new GridLayout(3, 1, 0, 10));
 
@@ -87,7 +83,6 @@ public class GUI extends JFrame {
         files.add(fileRow("Inject JAR", injectPath, 2, false));
         files.add(fileRow("Output JAR", outputPath, 1, true));
 
-        // Console card
         JPanel terminal = card();
         terminal.setLayout(new BorderLayout(0, 10));
 
@@ -127,7 +122,6 @@ public class GUI extends JFrame {
 
         root.add(content, BorderLayout.CENTER);
 
-        // Footer and status
         status = new JLabel("Ready");
         status.setForeground(muted);
 
@@ -242,7 +236,6 @@ public class GUI extends JFrame {
         if (row == 0) {
             inputFile = file;
 
-            // Automatically suggest an output filename.
             if (outputPath.getText().trim().isEmpty()) {
                 String path = file.getAbsolutePath();
 
@@ -265,7 +258,6 @@ public class GUI extends JFrame {
         fileToInject = read(injectPath);
         outputFile = read(outputPath);
 
-        // Generate a default output path if one wasn't provided.
         if (outputFile == null && inputFile != null) {
             String path = inputFile.getAbsolutePath();
 
