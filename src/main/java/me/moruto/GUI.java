@@ -3,294 +3,221 @@ package me.moruto;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 
 public class GUI extends JFrame {
 
-    private File inputFile;
-    private File outputFile;
-    private File fileToInject;
+    private File inputFile, outputFile, fileToInject;
 
-    private JTextField inputPathField;
-    private JTextField outputPathField;
-    private JTextField injectPathField;
+    private JTextField inputPath, outputPath, injectPath;
+    private static JTextArea console;
 
-    private static JTextArea consoleOutput;
     private JButton injectButton;
-    private JProgressBar progressBar;
-    private JLabel statusLabel;
+    private JLabel status;
+    private JProgressBar progress;
 
     private final JarInjector jarInjector = new JarInjector();
 
-    private static final Color BACKGROUND = new Color(245, 247, 250);
-    private static final Color PANEL = Color.WHITE;
-    private static final Color PRIMARY = new Color(70, 100, 220);
-    private static final Color PRIMARY_HOVER = new Color(55, 82, 195);
-    private static final Color TEXT = new Color(35, 38, 45);
-    private static final Color MUTED = new Color(110, 115, 125);
-    private static final Color BORDER = new Color(220, 223, 230);
+    // Dark theme colors
+    private final Color bg = new Color(24, 26, 32);
+    private final Color panel = new Color(32, 35, 43);
+    private final Color fieldBg = new Color(40, 43, 52);
+    private final Color blue = new Color(90, 120, 230);
+    private final Color text = new Color(230, 233, 240);
+    private final Color muted = new Color(150, 155, 170);
+    private final Color border = new Color(55, 59, 70);
 
     public GUI() {
         setTitle("Jar Injector");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setMinimumSize(new Dimension(700, 500));
-        setSize(850, 600);
+        setSize(800, 620);
+        setMinimumSize(new Dimension(680, 520));
         setLocationRelativeTo(null);
 
-        loadIcon();
-        setupUI();
-    }
-
-    private void loadIcon() {
-        try (InputStream input = getClass().getResourceAsStream("/icon.png")) {
-
-            if (input != null) {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-                byte[] buffer = new byte[4096];
-                int n;
-
-                while ((n = input.read(buffer)) != -1) {
-                    output.write(buffer, 0, n);
-                }
-
-                ImageIcon icon = new ImageIcon(output.toByteArray());
-                setIconImage(icon.getImage());
+        try {
+            URL icon = getClass().getResource("/icon.png");
+            if (icon != null) {
+                setIconImage(new ImageIcon(icon).getImage());
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
+
+        buildUI();
     }
 
-    private void setupUI() {
-        JPanel root = new JPanel(new BorderLayout());
-        root.setBackground(BACKGROUND);
-        root.setBorder(new EmptyBorder(20, 20, 20, 20));
+    private void buildUI() {
+        JPanel root = new JPanel(new BorderLayout(0, 18));
+        root.setBackground(bg);
+        root.setBorder(new EmptyBorder(24, 26, 22, 26));
 
-        root.add(createHeader(), BorderLayout.NORTH);
+        // Header
+        JLabel title = new JLabel("Jar Injector");
+        title.setFont(new Font("SansSerif", Font.BOLD, 25));
+        title.setForeground(text);
 
-        JPanel center = new JPanel(new BorderLayout(0, 15));
-        center.setOpaque(false);
-        center.setBorder(new EmptyBorder(20, 0, 15, 0));
+        JLabel subtitle = new JLabel(
+                "Merge classes and resources into a Java archive"
+        );
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        subtitle.setForeground(muted);
 
-        center.add(createFilePanel(), BorderLayout.NORTH);
-        center.add(createConsolePanel(), BorderLayout.CENTER);
+        JPanel header = new JPanel(new GridLayout(2, 1, 0, 4));
+        header.setOpaque(false);
+        header.add(title);
+        header.add(subtitle);
 
-        root.add(center, BorderLayout.CENTER);
-        root.add(createBottomPanel(), BorderLayout.SOUTH);
+        root.add(header, BorderLayout.NORTH);
+
+        // Main content
+        JPanel content = new JPanel(new BorderLayout(0, 16));
+        content.setOpaque(false);
+
+        // File selection card
+        JPanel files = card();
+        files.setLayout(new GridLayout(3, 1, 0, 10));
+
+        inputPath = new JTextField();
+        injectPath = new JTextField();
+        outputPath = new JTextField();
+
+        files.add(fileRow("Input JAR", inputPath, 0, false));
+        files.add(fileRow("Inject JAR", injectPath, 2, false));
+        files.add(fileRow("Output JAR", outputPath, 1, true));
+
+        // Console card
+        JPanel terminal = card();
+        terminal.setLayout(new BorderLayout(0, 10));
+
+        JLabel consoleTitle = new JLabel("Console");
+        consoleTitle.setFont(new Font("SansSerif", Font.BOLD, 14));
+        consoleTitle.setForeground(text);
+
+        console = new JTextArea();
+        console.setEditable(false);
+        console.setLineWrap(true);
+        console.setWrapStyleWord(true);
+        console.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        console.setForeground(new Color(225, 230, 240));
+        console.setBackground(new Color(28, 30, 37));
+        console.setCaretColor(text);
+        console.setBorder(new EmptyBorder(12, 12, 12, 12));
+
+        JScrollPane scroll = new JScrollPane(console);
+        scroll.setBorder(new LineBorder(border, 1, true));
+        scroll.getViewport().setBackground(new Color(28, 30, 37));
+        scroll.getVerticalScrollBar().setBackground(panel);
+        scroll.getHorizontalScrollBar().setBackground(panel);
+
+        JButton clear = createButton("Clear", fieldBg, text);
+        clear.addActionListener(e -> console.setText(""));
+
+        JPanel consoleHeader = new JPanel(new BorderLayout());
+        consoleHeader.setOpaque(false);
+        consoleHeader.add(consoleTitle, BorderLayout.WEST);
+        consoleHeader.add(clear, BorderLayout.EAST);
+
+        terminal.add(consoleHeader, BorderLayout.NORTH);
+        terminal.add(scroll, BorderLayout.CENTER);
+
+        content.add(files, BorderLayout.NORTH);
+        content.add(terminal, BorderLayout.CENTER);
+
+        root.add(content, BorderLayout.CENTER);
+
+        // Footer and status
+        status = new JLabel("Ready");
+        status.setForeground(muted);
+
+        progress = new JProgressBar();
+        progress.setIndeterminate(true);
+        progress.setVisible(false);
+        progress.setPreferredSize(new Dimension(120, 8));
+        progress.setBackground(panel);
+        progress.setForeground(blue);
+        progress.setBorderPainted(false);
+
+        injectButton = createButton("Inject JAR", blue, Color.WHITE);
+        injectButton.setFont(new Font("SansSerif", Font.BOLD, 13));
+        injectButton.setPreferredSize(new Dimension(130, 40));
+        injectButton.addActionListener(e -> inject());
+
+        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
+        left.setOpaque(false);
+        left.add(status);
+        left.add(progress);
+
+        JPanel footer = new JPanel(new BorderLayout());
+        footer.setOpaque(false);
+        footer.add(left, BorderLayout.WEST);
+        footer.add(injectButton, BorderLayout.EAST);
+
+        root.add(footer, BorderLayout.SOUTH);
 
         setContentPane(root);
     }
 
-    private JPanel createHeader() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setOpaque(false);
-
-        JLabel title = new JLabel("Jar Injector");
-        title.setFont(new Font("SansSerif", Font.BOLD, 26));
-        title.setForeground(TEXT);
-
-        JLabel subtitle = new JLabel("Inject classes and resources into a Java archive");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        subtitle.setForeground(MUTED);
-
-        JPanel text = new JPanel();
-        text.setOpaque(false);
-        text.setLayout(new BoxLayout(text, BoxLayout.Y_AXIS));
-
-        text.add(title);
-        text.add(Box.createVerticalStrut(4));
-        text.add(subtitle);
-
-        panel.add(text, BorderLayout.WEST);
-
-        return panel;
+    private JPanel card() {
+        JPanel p = new JPanel();
+        p.setBackground(panel);
+        p.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(border, 1, true),
+                new EmptyBorder(14, 16, 14, 16)
+        ));
+        return p;
     }
 
-    private JPanel createFilePanel() {
-        JPanel panel = createCard();
-
-        panel.setLayout(new GridBagLayout());
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(7, 10, 7, 10);
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-
-        inputPathField = new JTextField();
-        outputPathField = new JTextField();
-        injectPathField = new JTextField();
-
-        addFileRow(panel, gbc, 0, "Input JAR", inputPathField, false);
-        addFileRow(panel, gbc, 1, "Output JAR", outputPathField, true);
-        addFileRow(panel, gbc, 2, "Inject JAR", injectPathField, false);
-
-        return panel;
+    private JButton createButton(String label, Color background,
+                                 Color foreground) {
+        JButton button = new JButton(label);
+        button.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        button.setBackground(background);
+        button.setForeground(foreground);
+        button.setFocusPainted(false);
+        button.setOpaque(true);
+        button.setBorderPainted(false);
+        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        return button;
     }
 
-    private void addFileRow(
-            JPanel panel,
-            GridBagConstraints gbc,
-            int row,
-            String label,
-            JTextField field,
-            boolean save
-    ) {
+    private JPanel fileRow(String label, JTextField field,
+                           int row, boolean save) {
+        JPanel p = new JPanel(new BorderLayout(10, 0));
+        p.setOpaque(false);
+
         JLabel name = new JLabel(label);
-        name.setFont(new Font("SansSerif", Font.BOLD, 13));
-        name.setForeground(TEXT);
+        name.setPreferredSize(new Dimension(90, 30));
+        name.setForeground(text);
+        name.setFont(new Font("SansSerif", Font.BOLD, 12));
 
-        field.setPreferredSize(new Dimension(400, 36));
-        field.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        field.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        field.setBackground(fieldBg);
+        field.setForeground(text);
+        field.setCaretColor(Color.WHITE);
+        field.setSelectionColor(blue);
+        field.setSelectedTextColor(Color.WHITE);
         field.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(BORDER, 1, true),
-                new EmptyBorder(0, 10, 0, 10)
+                new LineBorder(border, 1, true),
+                new EmptyBorder(0, 9, 0, 9)
         ));
 
-        JButton browse = createSecondaryButton("Browse");
-
+        JButton browse = createButton("Browse", fieldBg, text);
         browse.addActionListener(e -> chooseFile(field, row, save));
 
-        gbc.gridx = 0;
-        gbc.gridy = row;
-        gbc.weightx = 0;
-        gbc.gridwidth = 1;
-        panel.add(name, gbc);
+        p.add(name, BorderLayout.WEST);
+        p.add(field, BorderLayout.CENTER);
+        p.add(browse, BorderLayout.EAST);
 
-        gbc.gridx = 1;
-        gbc.weightx = 1;
-        panel.add(field, gbc);
-
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        panel.add(browse, gbc);
+        return p;
     }
 
-    private JPanel createConsolePanel() {
-        JPanel panel = createCard();
-        panel.setLayout(new BorderLayout());
-
-        JLabel title = new JLabel("Console");
-        title.setFont(new Font("SansSerif", Font.BOLD, 14));
-        title.setForeground(TEXT);
-        title.setBorder(new EmptyBorder(0, 0, 10, 0));
-
-        consoleOutput = new JTextArea();
-        consoleOutput.setEditable(false);
-        consoleOutput.setLineWrap(true);
-        consoleOutput.setWrapStyleWord(true);
-        consoleOutput.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        consoleOutput.setForeground(new Color(220, 225, 235));
-        consoleOutput.setBackground(new Color(30, 32, 38));
-        consoleOutput.setCaretColor(Color.WHITE);
-        consoleOutput.setBorder(new EmptyBorder(12, 12, 12, 12));
-
-        JScrollPane scrollPane = new JScrollPane(consoleOutput);
-        scrollPane.setBorder(new LineBorder(new Color(45, 48, 55), 1, true));
-
-        panel.add(title, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        return panel;
-    }
-
-    private JPanel createBottomPanel() {
-        JPanel panel = new JPanel(new BorderLayout(15, 0));
-        panel.setOpaque(false);
-
-        statusLabel = new JLabel("Ready");
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        statusLabel.setForeground(MUTED);
-
-        progressBar = new JProgressBar();
-        progressBar.setIndeterminate(false);
-        progressBar.setVisible(false);
-        progressBar.setPreferredSize(new Dimension(150, 8));
-
-        injectButton = createPrimaryButton("Inject JAR");
-        injectButton.setPreferredSize(new Dimension(130, 40));
-        injectButton.addActionListener(e -> inject());
-
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        left.setOpaque(false);
-        left.add(statusLabel);
-        left.add(Box.createHorizontalStrut(15));
-        left.add(progressBar);
-
-        panel.add(left, BorderLayout.WEST);
-        panel.add(injectButton, BorderLayout.EAST);
-
-        return panel;
-    }
-
-    private JPanel createCard() {
-        JPanel panel = new JPanel();
-        panel.setBackground(PANEL);
-        panel.setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(BORDER, 1, true),
-                new EmptyBorder(15, 15, 15, 15)
-        ));
-
-        return panel;
-    }
-
-    private JButton createPrimaryButton(String text) {
-        JButton button = new JButton(text);
-
-        button.setFont(new Font("SansSerif", Font.BOLD, 13));
-        button.setForeground(Color.WHITE);
-        button.setBackground(PRIMARY);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseEntered(java.awt.event.MouseEvent e) {
-                button.setBackground(PRIMARY_HOVER);
-            }
-
-            @Override
-            public void mouseExited(java.awt.event.MouseEvent e) {
-                button.setBackground(PRIMARY);
-            }
-        });
-
-        return button;
-    }
-
-    private JButton createSecondaryButton(String text) {
-        JButton button = new JButton(text);
-
-        button.setFont(new Font("SansSerif", Font.BOLD, 12));
-        button.setForeground(TEXT);
-        button.setBackground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(new LineBorder(BORDER, 1, true));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        return button;
-    }
-
-    private void chooseFile(
-            JTextField field,
-            int row,
-            boolean save
-    ) {
+    private void chooseFile(JTextField field, int row, boolean save) {
         JFileChooser chooser = new JFileChooser();
-
-        chooser.setDialogTitle(save ? "Select output JAR" : "Select JAR file");
-
+        chooser.setDialogTitle(save ? "Choose output JAR" : "Choose input JAR");
         chooser.setFileFilter(
-                new javax.swing.filechooser.FileNameExtensionFilter(
-                        "Java Archive (*.jar)",
-                        "jar"
-                )
+                new FileNameExtensionFilter("JAR files (*.jar)", "jar")
         );
 
         int result = save
@@ -301,120 +228,44 @@ public class GUI extends JFrame {
             return;
         }
 
-        File selected = chooser.getSelectedFile();
+        File file = chooser.getSelectedFile();
 
-        if (save && !selected.getName().toLowerCase().endsWith(".jar")) {
-            selected = new File(
-                    selected.getParentFile(),
-                    selected.getName() + ".jar"
+        if (save && !file.getName().toLowerCase().endsWith(".jar")) {
+            file = new File(
+                    file.getParentFile(),
+                    file.getName() + ".jar"
             );
         }
 
-        field.setText(selected.getAbsolutePath());
+        field.setText(file.getAbsolutePath());
 
         if (row == 0) {
-            inputFile = selected;
+            inputFile = file;
+
+            // Automatically suggest an output filename.
+            if (outputPath.getText().trim().isEmpty()) {
+                String path = file.getAbsolutePath();
+
+                if (path.toLowerCase().endsWith(".jar")) {
+                    path = path.substring(0, path.length() - 4);
+                }
+
+                outputFile = new File(path + "-injected.jar");
+                outputPath.setText(outputFile.getAbsolutePath());
+            }
         } else if (row == 1) {
-            outputFile = selected;
+            outputFile = file;
         } else {
-            fileToInject = selected;
+            fileToInject = file;
         }
     }
 
     private void inject() {
-        resolveFiles();
+        inputFile = read(inputPath);
+        fileToInject = read(injectPath);
+        outputFile = read(outputPath);
 
-        if (!validateFiles()) {
-            return;
-        }
-
-        injectButton.setEnabled(false);
-        progressBar.setVisible(true);
-        progressBar.setIndeterminate(true);
-        statusLabel.setText("Injecting...");
-
-        log("Starting injection...");
-        log("Input: " + inputFile.getAbsolutePath());
-        log("Inject: " + fileToInject.getAbsolutePath());
-        log("Output: " + outputFile.getAbsolutePath());
-
-        new Thread(() -> {
-            try {
-                performInjection();
-
-                SwingUtilities.invokeLater(() -> {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setVisible(false);
-                    injectButton.setEnabled(true);
-                    statusLabel.setText("Injection completed");
-
-                    log("");
-                    log("Injection successful!");
-                    log("Output saved at:");
-                    log(outputFile.getAbsolutePath());
-                });
-
-            } catch (Exception ex) {
-                SwingUtilities.invokeLater(() -> {
-                    progressBar.setIndeterminate(false);
-                    progressBar.setVisible(false);
-                    injectButton.setEnabled(true);
-                    statusLabel.setText("Injection failed");
-
-                    log("");
-                    log("ERROR: " + ex.getMessage());
-                });
-            }
-        }, "JarInjector-Worker").start();
-    }
-
-    private void performInjection() {
-        JarLoader inputJarLoader = new JarLoader();
-
-        if (!inputJarLoader.loadJar(inputFile)) {
-            throw new RuntimeException("Failed to load input JAR.");
-        }
-
-        log("Loaded input JAR.");
-
-        JarLoader injectionJarLoader = new JarLoader();
-
-        if (!injectionJarLoader.loadJar(fileToInject)) {
-            throw new RuntimeException("Failed to load injection JAR.");
-        }
-
-        log("Loaded injection JAR.");
-
-        jarInjector.inject(inputJarLoader);
-
-        log("Injector processing completed.");
-
-        inputJarLoader.getClasses()
-                .addAll(injectionJarLoader.getClasses());
-
-        inputJarLoader.getResources()
-                .addAll(injectionJarLoader.getResources());
-
-        log("Merged classes and resources.");
-
-        inputJarLoader.saveJar(outputFile.getAbsolutePath());
-
-        log("JAR written successfully.");
-    }
-
-    private void resolveFiles() {
-        if (!inputPathField.getText().trim().isEmpty()) {
-            inputFile = new File(inputPathField.getText().trim());
-        }
-
-        if (!injectPathField.getText().trim().isEmpty()) {
-            fileToInject = new File(injectPathField.getText().trim());
-        }
-
-        if (!outputPathField.getText().trim().isEmpty()) {
-            outputFile = new File(outputPathField.getText().trim());
-        }
-
+        // Generate a default output path if one wasn't provided.
         if (outputFile == null && inputFile != null) {
             String path = inputFile.getAbsolutePath();
 
@@ -423,59 +274,173 @@ public class GUI extends JFrame {
             }
 
             outputFile = new File(path + "-injected.jar");
-
-            outputPathField.setText(outputFile.getAbsolutePath());
-
-            log("No output selected.");
-            log("Using default: " + outputFile.getAbsolutePath());
+            outputPath.setText(outputFile.getAbsolutePath());
         }
+
+        if (!validateFiles()) {
+            return;
+        }
+
+        final File source = inputFile;
+        final File injection = fileToInject;
+        final File destination = outputFile;
+
+        injectButton.setEnabled(false);
+        progress.setVisible(true);
+        status.setText("Injecting...");
+
+        log("Starting injection...");
+        log("Input: " + source);
+        log("Inject: " + injection);
+        log("Output: " + destination);
+
+        new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() {
+                JarLoader input = new JarLoader();
+
+                if (!input.loadJar(source)) {
+                    throw new RuntimeException(
+                            "Failed to load input JAR."
+                    );
+                }
+
+                log("Loaded input JAR.");
+
+                JarLoader extra = new JarLoader();
+
+                if (!extra.loadJar(injection)) {
+                    throw new RuntimeException(
+                            "Failed to load injection JAR."
+                    );
+                }
+
+                log("Loaded injection JAR.");
+
+                jarInjector.inject(input);
+
+                input.getClasses().addAll(extra.getClasses());
+                input.getResources().addAll(extra.getResources());
+
+                input.saveJar(destination.getAbsolutePath());
+
+                log("Merged classes and resources.");
+                log("JAR written successfully.");
+
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                injectButton.setEnabled(true);
+                progress.setVisible(false);
+
+                try {
+                    get();
+
+                    status.setText("Injection completed");
+                    log("Injection successful!");
+
+                    JOptionPane.showMessageDialog(
+                            GUI.this,
+                            "Output saved to:\n" + destination,
+                            "Success",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+
+                } catch (Exception e) {
+                    Throwable cause = e.getCause() != null
+                            ? e.getCause()
+                            : e;
+
+                    String message = cause.getMessage();
+
+                    if (message == null || message.trim().isEmpty()) {
+                        message = cause.toString();
+                    }
+
+                    status.setText("Injection failed");
+                    log("ERROR: " + message);
+
+                    JOptionPane.showMessageDialog(
+                            GUI.this,
+                            message,
+                            "Injection failed",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        }.execute();
+    }
+
+    private File read(JTextField field) {
+        String path = field.getText().trim();
+
+        return path.isEmpty() ? null : new File(path);
     }
 
     private boolean validateFiles() {
-        if (inputFile == null) {
-            log("ERROR: Please select an input JAR.");
-            return false;
+        if (inputFile == null || !inputFile.isFile()) {
+            return error("Select a valid input JAR.");
         }
 
-        if (!inputFile.isFile()) {
-            log("ERROR: Input JAR does not exist.");
-            return false;
-        }
-
-        if (fileToInject == null) {
-            log("ERROR: Please select a JAR to inject.");
-            return false;
-        }
-
-        if (!fileToInject.isFile()) {
-            log("ERROR: Injection JAR does not exist.");
-            return false;
+        if (fileToInject == null || !fileToInject.isFile()) {
+            return error("Select a valid injection JAR.");
         }
 
         if (inputFile.equals(fileToInject)) {
-            log("ERROR: Input and injection JAR cannot be the same file.");
-            return false;
+            return error(
+                    "Input and injection JAR must be different files."
+            );
         }
 
-        if (outputFile == null) {
-            log("ERROR: No output file specified.");
-            return false;
+        if (outputFile == null || outputFile.isDirectory()) {
+            return error("Select a valid output file path.");
         }
 
-        if (outputFile.equals(inputFile)) {
-            log("ERROR: Output cannot overwrite the input JAR.");
-            return false;
+        if (outputFile.equals(inputFile)
+                || outputFile.equals(fileToInject)) {
+            return error(
+                    "Output must not overwrite either input JAR."
+            );
+        }
+
+        File parent = outputFile.getAbsoluteFile().getParentFile();
+
+        if (parent == null) {
+            return error("Invalid output directory.");
+        }
+
+        if (!parent.exists() && !parent.mkdirs()) {
+            return error("Cannot create output directory.");
         }
 
         return true;
     }
 
+    private boolean error(String message) {
+        status.setText("Check configuration");
+        log("ERROR: " + message);
+
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Invalid configuration",
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        return false;
+    }
+
     public static void log(String message) {
         SwingUtilities.invokeLater(() -> {
-            consoleOutput.append(message + "\n");
-            consoleOutput.setCaretPosition(
-                    consoleOutput.getDocument().getLength()
-            );
+            if (console != null) {
+                console.append(message + "\n");
+                console.setCaretPosition(
+                        console.getDocument().getLength()
+                );
+            }
         });
     }
 
